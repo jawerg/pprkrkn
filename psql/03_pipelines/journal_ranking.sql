@@ -11,6 +11,7 @@ create view PK.VIEW_HASH_JOURNAL_RANKING as
 select
     KUERZEL,
     md5(cast(TAB.* as text))::uuid as HASHVAL,
+    RANK,
     JOURNAL,
     PUBLISHER,
     FACTOR,
