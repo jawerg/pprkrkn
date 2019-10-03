@@ -1,3 +1,4 @@
+import pandas as pd
 import psycopg2
 import requests
 from scrapy.selector import Selector
@@ -47,6 +48,16 @@ if __name__ == '__main__':
 
             ranking_table.append((kuerzel, rank, journal, publisher, ifac, adj_cites, n_items, cites))
 
+    # Export csv to postgres mounted imports folder.
+    cols = ['kuerzel', 'rank', 'journal', 'publisher', 'ifac', 'adj_cites', 'n_items', 'cites']
+    df = pd.DataFrame(ranking_table, columns=cols)
+
+    # remove duplicates that shouldn't exist (and aren't of any interest).
+    df.drop_duplicates(subset='kuerzel', keep='first', inplace=True)
+
+    mount_import = '/home/jan/Docker/volumes/postgres/imports/journal_info.csv'
+    df.to_csv(mount_import, index=False, header=False, sep='|')
+
     # Open connection against postgres db.
     host_ip, port_number, db_name, user_name, password = (
         'localhost', '5432', 'postgres', 'postgres', 'postman_in_postgres')
@@ -64,12 +75,10 @@ if __name__ == '__main__':
     cursor.execute(qry)
     conn.commit()
 
-    # Insert each row into the journal ranking table.
-    fqry = '''insert into pk.lz_journal_info values ({}) on conflict (kuerzel) do nothing;'''
-    for tup in ranking_table:
-        qry = fqry.format(""", """.join(["'" + val.replace("'", "''") + "'" for val in tup]))
-        cursor.execute(qry)
-        conn.commit()
+    # insert updates.
+    qry = """copy PK.LZ_JOURNAL_INFO from '/var/lib/postgresql/data/imports/journal_info.csv' (delimiter '|');"""
+    cursor.execute(qry)
+    conn.commit()
 
     # finish.
     cursor.close()

@@ -2,10 +2,11 @@
 
 create table PK.CT_JOURNAL_RANK
 (
-    PUB      char(3) references PK.IDX_VID (PUB),
-    JOUR     char(6) references PK.IDX_JID (JOUR),
+    PUB      char(3),
+    JOUR     char(6),
     RANK     integer,
-    TS_ENTRY timestamp default current_timestamp
+    TS_ENTRY timestamp default current_timestamp,
+    foreign key (PUB, JOUR) references PK.IDX_JID (PUB, JOUR)
 );
 
 create view PK.VIEW_SHUTTLE_JOURNAL_RANK as
