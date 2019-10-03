@@ -59,8 +59,13 @@ if __name__ == '__main__':
     )
     cursor = conn.cursor()
 
+    # clean current landing zone.
+    qry = 'truncate table pk.lz_journal_info'
+    cursor.execute(qry)
+    conn.commit()
+
     # Insert each row into the journal ranking table.
-    fqry = '''insert into pk.lz_journal_ranking values ({});'''
+    fqry = '''insert into pk.lz_journal_info values ({}) on conflict (kuerzel) do nothing;'''
     for tup in ranking_table:
         qry = fqry.format(""", """.join(["'" + val.replace("'", "''") + "'" for val in tup]))
         cursor.execute(qry)

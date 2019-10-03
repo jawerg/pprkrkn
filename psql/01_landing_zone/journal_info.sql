@@ -1,4 +1,4 @@
-create table PK.LZ_JOURNAL_RANKING
+create table PK.LZ_JOURNAL_INFO
 (
     KUERZEL       char(10) primary key,
     RANK          integer,
