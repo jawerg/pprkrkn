@@ -24,6 +24,7 @@ select *
         select PUB, JOUR, N_ARTICLES
             from PK.CT_JOURNAL_ARTICLES
     );
+
 create view PK.VIEW_OLDIES_JOURNAL_ARTICLES as
 select
     CT.*,
@@ -31,6 +32,12 @@ select
     from PK.CT_JOURNAL_ARTICLES                     as CT
         inner join PK.VIEW_NEWBIES_JOURNAL_ARTICLES as NEWB
                        on (CT.PUB, CT.JOUR) = (NEWB.PUB, NEWB.JOUR)
+union all
+select *, now()
+    from PK.CT_JOURNAL_RANK
+    where not (PUB, JOUR) in (
+        select PUB, JOUR
+            from PK.VIEW_SHUTTLE_JOURNAL_RANK )
 ;
 
 create table PK.ARCH_JOURNAL_ARTICLES as table PK.VIEW_OLDIES_JOURNAL_ARTICLES with no data;

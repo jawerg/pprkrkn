@@ -31,6 +31,12 @@ select
     from PK.CT_JOURNAL_RANK                     as CT
         inner join PK.VIEW_NEWBIES_JOURNAL_RANK as NEWB
                        on (CT.PUB, CT.JOUR) = (NEWB.PUB, NEWB.JOUR)
+union all
+select *, now()
+    from PK.CT_JOURNAL_RANK
+    where not (PUB, JOUR) in (
+        select PUB, JOUR
+            from PK.VIEW_SHUTTLE_JOURNAL_RANK )
 ;
 
 create table PK.ARCH_JOURNAL_RANK as table PK.VIEW_OLDIES_JOURNAL_RANK with no data;
