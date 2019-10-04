@@ -1,6 +1,8 @@
+import os
 import pandas as pd
 import psycopg2
 import requests
+
 from scrapy.selector import Selector
 
 if __name__ == '__main__':
@@ -76,10 +78,12 @@ if __name__ == '__main__':
     conn.commit()
 
     # insert updates.
-    qry = """copy PK.LZ_JOURNAL_INFO from '/var/lib/postgresql/data/imports/journal_info.csv' (delimiter '|');"""
+    docker_pth = '/var/lib/postgresql/data/imports/journal_info.csv'
+    qry = """copy PK.LZ_JOURNAL_INFO from '{}' (delimiter '|');""".format(docker_pth)
     cursor.execute(qry)
     conn.commit()
 
     # finish.
     cursor.close()
     conn.close()
+    os.remove(mount_import)  # avoid duplicate imports due to empty updates.
