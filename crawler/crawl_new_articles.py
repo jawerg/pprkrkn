@@ -1,9 +1,7 @@
 import psycopg2
-import sys
 import itertools
-
-import pandas
 import requests
+
 from scrapy.selector import Selector
 
 if __name__ == '__main__':
@@ -36,7 +34,7 @@ if __name__ == '__main__':
         slct = Selector(text=page.text)  #
 
         paplist = [url[:-5] for url in slct.xpath('//li/b/a/@href').getall()]
-        fqry = '''insert into pk.lz_aref_inbox values ('{}');'''
+        fqry = '''insert into pk.lz_aref_inbox values ('{}') on conflict (aref) do nothing;'''
 
         for pap in paplist:
             qry = fqry.format(pap)
