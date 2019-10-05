@@ -65,6 +65,11 @@ if __name__ == '__main__':
     mount_import = '/home/jan/Docker/volumes/postgres/imports/pap_info.csv'
     df.to_csv(mount_import, sep='\t', index=False, header=False)
 
+    # clear current landing zone.
+    qry = 'truncate table PK.LZ_pap_info'
+    cursor.execute(qry)
+    conn.commit()
+
     # insert updates.
     docker_pth = '/var/lib/postgresql/data/imports/pap_info.csv'
     qry = "copy PK.LZ_pap_info from '{}' (delimiter '\t');".format(docker_pth)

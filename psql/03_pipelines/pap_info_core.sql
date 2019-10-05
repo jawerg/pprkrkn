@@ -73,11 +73,6 @@ begin
     select *
         from PK.VIEW_NEWBIES_PAP_INFO_CORE;
 
-    -- everything must have been processed.
-    delete
-        from PK.LZ_PAP_INFO
-        where 1 = 1;
-
     return null;
 end;
 $$
