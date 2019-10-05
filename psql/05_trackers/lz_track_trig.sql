@@ -41,12 +41,33 @@ end;
 $$
     language plpgsql;
 
-
 create trigger TRIG_TRACK_LZ_AREF_INBOX_INSERT
     after insert
     on PK.LZ_AREF_INBOX
     for each statement
 execute function PK.track_lz_aref_inbox_insert();
+
+
+-- COPIED CODE!
+create function PK.track_lz_pap_info_insert()
+    returns trigger
+as
+$$
+begin
+    insert into PK.TRACK_TAB_LZ_ACTIONS
+    select 'pap_info', 'insert', now();
+
+    return null;
+end;
+$$
+    language plpgsql;
+
+
+create trigger TRIG_TRACK_LZ_PAP_INFO_INSERT
+    after insert
+    on PK.LZ_PAP_INFO
+    for each statement
+execute function PK.track_lz_pap_info_insert();
 
 
 -- Delete Example
