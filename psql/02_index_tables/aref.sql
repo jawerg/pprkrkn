@@ -4,7 +4,7 @@ create table PK.IDX_AID
     JOUR     char(6),
     ART      text not null,
     AREF     text not null unique,
-    AID      uuid not null unique default uuid_generate_v4(),
+    AID      uuid not null unique default md5(AREF)::uuid,
     TS_ENTRY timestamp,
     primary key (PUB, JOUR, ART),
     foreign key (PUB, JOUR) references PK.IDX_JID (PUB, JOUR)
