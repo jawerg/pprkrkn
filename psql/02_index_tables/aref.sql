@@ -12,13 +12,13 @@ create table PK.IDX_AID
     AID      uuid not null unique default uuid_generate_v4(),
     TS_ENTRY timestamp,
     primary key (PUB, JOUR, ART),
-    foreign key (PUB, JOUR) references pk.IDX_JID (PUB, JOUR)
+    foreign key (PUB, JOUR) references PK.IDX_JID (PUB, JOUR)
 );
 
 create view PK.VIEW_IDX_INSERT_AID as
 with
     SUBSTRINGS as (
-        select
+        select distinct
             substr(AREF, 4, 3) as PUB,
             substr(AREF, 8, 6) as JOUR,
             substr(AREF, 15)   as ART,
