@@ -23,7 +23,7 @@ select
 
 create table PK.CT_PAP_INFO_CORE as table PK.VIEW_HASH_PAP_INFO_CORE with no data;
 alter table PK.CT_PAP_INFO_CORE
-    add constraint CONSTRAINT_NAME foreign key (AID) references PK.IDX_AID (AID);
+    add foreign key (AID) references PK.IDX_AID (AID);
 
 create view PK.VIEW_NEWBIES_PAP_INFO_CORE as
 select *
@@ -46,7 +46,7 @@ select
 
 create table PK.ARCH_PAP_INFO_CORE as table PK.VIEW_OLDIES_PAP_INFO_CORE with no data;
 alter table PK.ARCH_PAP_INFO_CORE
-    add constraint CONSTRAINT_NAME foreign key (AID) references PK.IDX_AID (AID);
+    add foreign key (AID) references PK.IDX_AID (AID);
 
 
 create function PK.ETL_PAP_INFO_CORE()
