@@ -1,8 +1,3 @@
-drop trigger TRIG_AID_IDX_SHIFT on PK.LZ_AREF_INBOX;
-drop function PK.AID_INDEXING;
-drop view PK.VIEW_IDX_INSERT_AID;
-drop table PK.IDX_AID;
-
 create table PK.IDX_AID
 (
     PUB      char(3),
