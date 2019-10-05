@@ -59,4 +59,4 @@ if __name__ == '__main__':
     # close connections and tidy-up.
     cursor.close()
     conn.close()
-    #os.remove(mount_import)
+    os.remove(mount_import)
