@@ -78,7 +78,7 @@ end;
 $$
     language plpgsql;
 
-create trigger TRIG_ETL_PAP_INFO_CORE
+create trigger TRIG_1_ETL_PAP_INFO_CORE
     after insert
     on PK.LZ_PAP_INFO
     for each statement
