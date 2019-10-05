@@ -4,9 +4,8 @@ create table PK.IDX_AID
     JOUR     char(6),
     ART      text not null,
     AREF     text not null unique,
-    AID      uuid not null unique default md5(AREF)::uuid,
+    AID      uuid primary key,
     TS_ENTRY timestamp,
-    primary key (PUB, JOUR, ART),
     foreign key (PUB, JOUR) references PK.IDX_JID (PUB, JOUR)
 );
 
@@ -18,6 +17,11 @@ with
             substr(AREF, 8, 6) as JOUR,
             substr(AREF, 15)   as ART,
             AREF,
+            md5(''
+                    || substr(AREF, 4, 3)
+                    || substr(AREF, 8, 6)
+                || substr(AREF, 15)
+                )::uuid        as AID,
             TS_ENTRY
             from PK.LZ_AREF_INBOX
             where left(AREF, 3) = '/a/'
@@ -34,7 +38,7 @@ create function PK.AID_INDEXING()
 as
 $$
 begin
-    insert into PK.IDX_AID( PUB, JOUR, ART, AREF, TS_ENTRY )
+    insert into PK.IDX_AID
     select *
         from PK.VIEW_IDX_INSERT_AID;
 
