@@ -47,3 +47,25 @@ create trigger TRIG_TRACK_LZ_AREF_INBOX_INSERT
     on PK.LZ_AREF_INBOX
     for each statement
 execute function PK.track_lz_aref_inbox_insert();
+
+
+-- Delete Example
+create function PK.track_lz_aref_inbox_delete()
+    returns trigger
+as
+$$
+begin
+    insert into PK.TRACK_TAB_LZ_ACTIONS
+    select 'lz_aref_inbox', 'delete', now();
+
+    return null;
+end;
+$$
+    language plpgsql;
+
+
+create trigger TRIG_TRACK_LZ_AREF_INBOX_DELETE
+    after delete
+    on PK.LZ_AREF_INBOX
+    for each statement
+execute function PK.track_lz_aref_inbox_delete();
