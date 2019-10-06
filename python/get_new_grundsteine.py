@@ -1,25 +1,15 @@
 import itertools
 import os
 import pandas as pd
-import psycopg2
 import requests
 
 from scrapy.selector import Selector
+from pypg import Connector as cnnc
 
 if __name__ == '__main__':
 
-    # initialize database connection.
-    host_ip, port_number, db_name, user_name, password = (
-        'localhost', '5432', 'postgres', 'postgres', 'postman_in_postgres')
-
-    conn = psycopg2.connect(
-        host=host_ip,
-        port=port_number,
-        database=db_name,
-        user=user_name,
-        password=password
-    )
-
+    # connect to the postgres container with stored credentials via function.
+    conn = cnnc.connect_to_pg_container()
     cursor = conn.cursor()
 
     # receive journals to be taken as baseline.
