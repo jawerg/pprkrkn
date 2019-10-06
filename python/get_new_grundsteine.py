@@ -16,10 +16,10 @@ def add_paps(collector, jlink, page=0):
 
     # construct url.
     url = 'https://ideas.repec.org/s/{}.html'.format(jlink + pager)
-    page = requests.get(url)
+    response = requests.get(url)
 
     # get all references from the current page.
-    slct = Selector(text=page.text)
+    slct = Selector(text=response.text)
     paplist = [url[:-5] for url in slct.xpath('//li/b/a/@href').getall()]
     collector.extend(paplist)
 
@@ -28,7 +28,8 @@ def add_paps(collector, jlink, page=0):
 
     conditions = [
         '»' in i_switches,  # only the final page doesn't have a "next page" button.
-        len(a_switches) == 0  # there's nowhere to go if there are no switches at all.
+        len(a_switches) == 0,  # there's nowhere to go if there are no switches at all.
+        page > 100  # hard code force breakpoint for mis-aligned cron job
     ]
 
     if not any(conditions):
