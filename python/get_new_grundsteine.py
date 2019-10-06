@@ -6,6 +6,37 @@ import requests
 from scrapy.selector import Selector
 from pypg import Connector as cnnc
 
+
+def add_paps(collector, jlink, page=0):
+    # interpret given page counter and generate next page switch.
+    if page == 0:
+        pager, pplus = '', 2  # next page from no suffix is 2.
+    else:
+        pager, pplus = str(page), page + 1
+
+    # construct url.
+    url = 'https://ideas.repec.org/s/{}.html'.format(jlink + pager)
+    page = requests.get(url)
+
+    # get all references from the current page.
+    slct = Selector(text=page.text)
+    paplist = [url[:-5] for url in slct.xpath('//li/b/a/@href').getall()]
+    collector.extend(paplist)
+
+    i_switches = set(slct.xpath('//li[@class="page-item inactive"]/a/text()').getall())  # inactive switches
+    a_switches = slct.xpath('//li[@class="page-item"]/a/text()').getall()  # active switches
+
+    conditions = [
+        '»' in i_switches,  # only the final page doesn't have a "next page" button.
+        len(a_switches) == 0  # there's nowhere to go if there are no switches at all.
+    ]
+
+    if not any(conditions):
+        collector = add_paps(collector=collector, jlink=jlink, page=pplus)
+
+    return collector
+
+
 if __name__ == '__main__':
 
     # connect to the postgres container with stored credentials via function.
@@ -24,12 +55,7 @@ if __name__ == '__main__':
 
     # crawl newest papers of each journal.
     for journal in journals:
-        url = 'https://ideas.repec.org/s/{}.html'.format(journal)
-        page = requests.get(url)
-        slct = Selector(text=page.text)  #
-
-        paplist = [url[:-5] for url in slct.xpath('//li/b/a/@href').getall()]
-        jpaps.extend(paplist)
+        jpaps = add_paps(jpaps, journal)
 
     # store results to mounted folder.
     mount_import = '/home/jan/Docker/volumes/postgres/imports/aref_inbox.csv'
