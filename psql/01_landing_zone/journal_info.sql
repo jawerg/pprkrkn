@@ -9,3 +9,5 @@ create table PK.LZ_JOURNAL_INFO
     N_ARTICLES    integer,
     N_CITATIONS   integer
 );
+
+call PK.gen_tracking_functions('LZ_JOURNAL_INFO');

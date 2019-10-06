@@ -9,6 +9,8 @@ create table PK.IDX_JID
     primary key (PUB, JOUR)
 );
 
+call PK.gen_tracking_functions('IDX_JID');
+
 create view PK.VIEW_IDX_INSERT_JID as
 with
     SUBSTRINGS as (
@@ -30,7 +32,7 @@ create function PK.JID_INDEXING()
 as
 $$
 begin
-    insert into PK.IDX_JID( PUB, JOUR, Publisher, JOURNAL )
+    insert into PK.IDX_JID( PUB, JOUR, PUBLISHER, JOURNAL )
     select *
         from PK.VIEW_IDX_INSERT_JID;
     return null;

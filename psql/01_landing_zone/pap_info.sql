@@ -15,3 +15,5 @@ create table PK.LZ_PAP_INFO
     FIRSTPAGE       integer,
     LASTPAGE        integer
 );
+
+call PK.gen_tracking_functions('LZ_PAP_INFO');

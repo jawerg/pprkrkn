@@ -9,6 +9,8 @@ create table PK.CT_JOURNAL_ARTICLES
     foreign key (PUB, JOUR) references PK.IDX_JID (PUB, JOUR)
 );
 
+call pk.gen_tracking_functions('CT_JOURNAL_ARTICLES');
+
 create view PK.VIEW_SHUTTLE_JOURNAL_ARTICLES as
 select
     left(KUERZEL, 3)  as PUB,
@@ -41,6 +43,8 @@ select *, now()
 ;
 
 create table PK.ARCH_JOURNAL_ARTICLES as table PK.VIEW_OLDIES_JOURNAL_ARTICLES with no data;
+
+call pk.gen_tracking_functions('ARCH_JOURNAL_ARTICLES');
 
 create function PK.ETL_JOURNAL_ARTICLES()
     returns trigger

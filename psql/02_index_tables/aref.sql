@@ -9,6 +9,8 @@ create table PK.IDX_AID
     foreign key (PUB, JOUR) references PK.IDX_JID (PUB, JOUR)
 );
 
+call PK.gen_tracking_functions('IDX_AID');
+
 create view PK.VIEW_IDX_INSERT_AID as
 with
     SUBSTRINGS as (

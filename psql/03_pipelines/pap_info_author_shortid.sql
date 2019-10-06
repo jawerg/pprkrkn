@@ -11,6 +11,8 @@ create table PK.CT_PAP_INFO_AUTHOR_SHORTIDS as table PK.VIEW_SHUTTLE_PAP_INFO_AU
 alter table PK.CT_PAP_INFO_AUTHOR_SHORTIDS
     add foreign key (AID) references PK.IDX_AID (AID);
 
+call pk.gen_tracking_functions('CT_PAP_INFO_AUTHOR_SHORTIDS');
+
 create view PK.VIEW_NEWBIES_PAP_INFO_AUTHOR_SHORTIDS as
 select *
     from PK.VIEW_SHUTTLE_PAP_INFO_AUTHOR_SHORTIDS
@@ -37,6 +39,8 @@ select CT.*, now() as TS_ARCH
 create table PK.ARCH_PAP_INFO_AUTHOR_SHORTIDS as table PK.VIEW_OLDIES_PAP_INFO_AUTHOR_SHORTIDS with no data;
 alter table PK.CT_PAP_INFO_AUTHOR_SHORTIDS
     add foreign key (AID) references PK.IDX_AID (AID);
+
+call PK.gen_tracking_functions('ARCH_PAP_INFO_AUTHOR_SHORTIDS');
 
 create function PK.ETL_PAP_INFO_AUTHOR_SHORTIDS()
     returns trigger

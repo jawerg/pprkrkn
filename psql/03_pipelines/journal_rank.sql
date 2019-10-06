@@ -9,6 +9,8 @@ create table PK.CT_JOURNAL_RANK
     foreign key (PUB, JOUR) references PK.IDX_JID (PUB, JOUR)
 );
 
+call pk.gen_tracking_functions('CT_JOURNAL_RANK');
+
 create view PK.VIEW_SHUTTLE_JOURNAL_RANK as
 select
     left(KUERZEL, 3)  as PUB,
@@ -40,6 +42,8 @@ select *, now()
 ;
 
 create table PK.ARCH_JOURNAL_RANK as table PK.VIEW_OLDIES_JOURNAL_RANK with no data;
+
+call pk.gen_tracking_functions('ARCH_JOURNAL_RANK');
 
 create function PK.ETL_JOURNAL_RANK()
     returns trigger

@@ -25,6 +25,8 @@ create table PK.CT_PAP_INFO_CORE as table PK.VIEW_HASH_PAP_INFO_CORE with no dat
 alter table PK.CT_PAP_INFO_CORE
     add foreign key (AID) references PK.IDX_AID (AID);
 
+call PK.gen_tracking_functions('CT_PAP_INFO_CORE');
+
 create view PK.VIEW_NEWBIES_PAP_INFO_CORE as
 select *
     from PK.VIEW_HASH_PAP_INFO_CORE
@@ -48,6 +50,7 @@ create table PK.ARCH_PAP_INFO_CORE as table PK.VIEW_OLDIES_PAP_INFO_CORE with no
 alter table PK.ARCH_PAP_INFO_CORE
     add foreign key (AID) references PK.IDX_AID (AID);
 
+call PK.gen_tracking_functions('ARCH_PAP_INFO_CORE');
 
 create function PK.ETL_PAP_INFO_CORE()
     returns trigger
