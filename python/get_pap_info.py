@@ -22,6 +22,35 @@ ATTRIBUTES = [
     'citation_lastpage'
 ]
 
+
+def get_paps_to_query(crsr):
+    crsr.execute('select * from PK.VIEW_QUEUE_AREF')
+    arefs = crsr.fetchall()
+    return list(itertools.chain(*arefs))
+
+
+def run_qry(cnn, crsr, qry):
+    crsr.execute(qry)
+    cnn.commit()
+
+
+def push_data(cnn, crsr, loc, dat):
+    mount_loc = '/home/jan/Docker/volumes/postgres/imports/{}.csv'
+    dat.to_csv(mount_loc.format(loc), sep='\t', index=False, header=False)
+
+    # clear current landing zone (delete-query).
+    d_qry = 'truncate table PK.LZ_{}'.format(loc.upper())
+    run_qry(cnn, crsr, d_qry)
+
+    # insert updates (insert-query).
+    docker_pth = '/var/lib/postgresql/data/imports/{}.csv'.format(loc)
+    i_qry = "copy PK.LZ_{} from '{}' (delimiter '\t');".format(loc, docker_pth)
+    run_qry(cnn, crsr, i_qry)
+
+    # clean-up
+    os.remove(mount_loc.format(loc))
+
+
 if __name__ == '__main__':
 
     # connect to the postgres container with stored credentials via function.
@@ -29,20 +58,21 @@ if __name__ == '__main__':
     cursor = conn.cursor()
 
     # query articles to be processed.
-    qry = 'select * from PK.VIEW_QUEUE_AREF'
-    cursor.execute(qry)
-    a_links = cursor.fetchall()
-    a_links = list(itertools.chain(*a_links))
+    a_links = get_paps_to_query(crsr=cursor)
 
+    # prepare general form of the page und meta-information.
     furl = 'https://ideas.repec.org{}.html'
     xpath_fqry = '//meta[@name="{}"]/@content'
 
-    global_dict = dict()
+    # Store meta-information, references, and citations in data structures
+    # for all links included in the current run. In a later step, insert those
+    # en-block into the database.
+    global_dict, references, citations = dict(), list(), list()
     for link in a_links:
         page = requests.get(furl.format(link))
         slct = Selector(text=page.text)
 
-        # initialize page:
+        # store all relevant information in a local dict:
         local_dict = dict()
         for attr in ATTRIBUTES:
             local_dict[attr] = slct.xpath(xpath_fqry.format(attr)).get()
@@ -51,24 +81,32 @@ if __name__ == '__main__':
         local_dict['aref'] = link
         global_dict[link] = local_dict.copy()
 
-    # generate and store DataFrame from dictionary.
+        # store references
+        refs = slct.xpath('//div[@id="refs"]//@href').getall()
+        refs = [(link, ref[:-5]) for ref in refs if ref[0] == '/' and len(ref) > 19]
+        references.extend(refs)
+
+        # store citations
+        cites = slct.xpath('//div[@id="cites"]//@href').getall()
+        cites = [(link, cit) for cit in cites if cit[0] == '/' and len(cit) > 19]
+        citations.extend(cites)
+
+    # generate and store DataFrames
     cols = ['aref'] + ATTRIBUTES
-    df = pd.DataFrame.from_dict(global_dict, orient='index', columns=cols)
-    mount_import = '/home/jan/Docker/volumes/postgres/imports/pap_info.csv'
-    df.to_csv(mount_import, sep='\t', index=False, header=False)
+    mdf = pd.DataFrame.from_dict(global_dict, orient='index', columns=cols)
+    rdf = pd.DataFrame(references)
+    cdf = pd.DataFrame(citations)
 
-    # clear current landing zone.
-    qry = 'truncate table PK.LZ_pap_info'
-    cursor.execute(qry)
-    conn.commit()
+    # define locations and according tables.
+    mdict = {
+        'pap_info': mdf,
+        'references': rdf,
+        'citations': cdf
+    }
 
-    # insert updates.
-    docker_pth = '/var/lib/postgresql/data/imports/pap_info.csv'
-    qry = "copy PK.LZ_pap_info from '{}' (delimiter '\t');".format(docker_pth)
-    cursor.execute(qry)
-    conn.commit()
+    for table, data in mdict.items():
+        push_data(cnn=conn, crsr=cursor, loc=table, dat=data)
 
     # close connections and tidy-up.
     cursor.close()
     conn.close()
-    os.remove(mount_import)
