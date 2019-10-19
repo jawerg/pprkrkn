@@ -5,17 +5,17 @@ select
             || P.DATE || P.HANDLE || P.TITLE
             || P.ABSTRACT || P.YEAR || P.VOLUME
             || P.ISSUE || P.FIRSTPAGE || P.LASTPAGE
-        )::uuid as HASHVAL,
+        )::uuid                                                         as HASHVAL,
     DATE,
     P.HANDLE,
     P.TITLE,
-    P.ABSTRACT,
+    nullif(trim(P.ABSTRACT), 'No abstract is available for this item.') as ABSTRACT,
     P.YEAR,
     P.VOLUME,
     P.ISSUE,
     P.FIRSTPAGE,
     P.LASTPAGE,
-    NOW()       as TS_ENTRY
+    NOW()                                                               as TS_ENTRY
     from PK.LZ_PAP_INFO       as P
         inner join PK.IDX_AID as IDX
                        on (substr(P.AREF, 4, 3), substr(P.AREF, 8, 6), substr(P.AREF, 15))
